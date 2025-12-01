@@ -1,0 +1,65 @@
+/* Estilos para el carrito */
+#cartTable {
+    width:100%;
+    border-collapse:collapse
+}
+
+#cartTable th,#cartTable td {
+    padding:10px 8px;
+    border-bottom:1px solid var(--border);
+    text-align:left
+}
+
+#cartTable td.thumb {
+    width:80px;
+    text-align:center
+}
+
+#cartTable td.thumb img {
+    max-width:60px;
+    max-height:60px;
+    object-fit:cover;
+    border-radius:4px
+}
+
+#cartTable td input {
+    width:60px
+}
+
+.buttons {
+    display:flex;
+    gap:8px
+}
+
+/* Mensaje - Componente de notificación */
+.pdj-message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    border-left: 4px solid;
+}
+
+.pdj-message.success {
+    background: #dcfce7;
+    color: #166534;
+    border-left-color: #22c55e;
+}
+
+.pdj-message.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left-color: #ef4444;
+}
+
+.pdj-message.warning {
+    background: #fef3c7;
+    color: #92400e;
+    border-left-color: #eab308;
+}
+
+.pdj-message.info {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left-color: #3b82f6;
+}

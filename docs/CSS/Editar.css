@@ -1,0 +1,53 @@
+/* Estilos específicos para la pantalla de editar */
+.container{
+    max-width:640px
+}
+label{
+    display:block;
+    margin:12px 0 6px;
+    font-weight:600
+}
+input[type="text"],input[type="email"],input[type="number"]{
+    width:100%;
+    padding:10px;
+    border:1px solid var(--border);
+    border-radius:6px
+}
+.buttons{
+    margin-top:12px;
+    display:flex;
+    gap:8px
+}
+
+/* Mensaje - Componente de notificación */
+.pdj-message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    border-left: 4px solid;
+}
+
+.pdj-message.success {
+    background: #dcfce7;
+    color: #166534;
+    border-left-color: #22c55e;
+}
+
+.pdj-message.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left-color: #ef4444;
+}
+
+.pdj-message.warning {
+    background: #fef3c7;
+    color: #92400e;
+    border-left-color: #eab308;
+}
+
+.pdj-message.info {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left-color: #3b82f6;
+}

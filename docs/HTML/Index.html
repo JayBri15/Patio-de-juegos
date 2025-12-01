@@ -1,0 +1,62 @@
+<!doctype html>
+<!--
+  Index.html — Página de autenticación (inicio/registro).
+  Incluye pestañas para iniciar sesión y registrar usuarios. El registro guarda
+  usuarios en localStorage y el inicio crea una sesión en sessionStorage.
+  La autenticación es de demostración (cliente-only) y usa SHA-256 para hashes.
+-->
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login</title>
+  <link rel="stylesheet" href="../CSS/Crear.css">
+  <link rel="stylesheet" href="../CSS/Index.css">
+</head>
+<body>
+  <main class="container">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h1 style="margin:0">Acceso</h1>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div id="authActions"></div>
+      </div>
+    </header>
+
+    <div id="pdj_message" class="pdj-message" style="display:none"></div>
+
+    <section id="authSection" class="form-section auth-section">
+      <div class="auth-tabs">
+        <button id="tabLogin" class="tab active">Iniciar sesión</button>
+        <button id="tabRegister" class="tab">Registrar</button>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <label for="loginName">Nombre de usuario</label>
+        <input id="loginName" type="text" placeholder="Nombre de usuario" required>
+        <label for="loginPassword">Contraseña</label>
+        <input id="loginPassword" type="password" placeholder="Contraseña" required>
+        <div class="buttons">
+          <button type="submit">Entrar</button>
+        </div>
+      </form>
+
+      <form id="registerForm" class="auth-form" style="display:none">
+        <label for="regName">Nombre</label>
+        <input id="regName" type="text" placeholder="Nombre completo" required>
+        <label for="regEmail">Correo</label>
+        <input id="regEmail" type="email" placeholder="ejemplo@dominio.com" required>
+        <label for="regPassword">Contraseña</label>
+        <input id="regPassword" type="password" placeholder="Contraseña" required>
+        <label for="regPassword2">Confirmar contraseña</label>
+        <input id="regPassword2" type="password" placeholder="Repite la contraseña" required>
+        <div class="buttons">
+          <button type="submit">Registrar</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="../JS/ui.js"></script>
+  <script src="../JS/Index.js"></script>
+</body>
+</html>

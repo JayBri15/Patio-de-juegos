@@ -1,0 +1,65 @@
+<!doctype html>
+<!--
+  Crear.html — Interfaz de gestión de productos (solo administradores).
+  Contiene el formulario para crear/editar productos, control de imagenes y enlaces a la lista pública.
+  Esta página está pensada para uso en el navegador sin servidor (datos en localStorage).
+-->
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Crear - Tarea 3</title>
+    <link rel="stylesheet" href="../CSS/Crear.css">
+  </head>
+<body>
+  <main class="container">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h1 style="margin:0">Gestión de Productos</h1>
+      <div id="authActions">
+        <!-- Estado de sesión se inyecta por JS -->
+      </div>
+    </header>
+    
+    <div id="pdj_message" class="pdj-message" style="display:none"></div>
+    <section class="form-section">
+      <form id="productForm">
+        <input type="hidden" id="productId">
+
+        <label for="productName">Nombre producto</label>
+        <input id="productName" type="text" placeholder="Nombre del producto" required>
+
+        <label for="productDesc">Descripción</label>
+        <textarea id="productDesc" class="flex-textarea" placeholder="Descripción breve"></textarea>
+
+        <label for="productPrice">Precio</label>
+        <input id="productPrice" type="number" min="0" step="0.01" placeholder="0.00" required>
+
+        <label for="productStock">Stock</label>
+        <input id="productStock" type="number" min="0" step="1" placeholder="0" required>
+
+        <label for="productImage">Imagen (opcional)</label>
+        <input id="productImage" type="file" accept="image/*" style="display:none">
+        <button id="chooseImageBtn" type="button" class="btn">Seleccionar imagen</button>
+        <img id="productPreview" alt="Vista previa" style="max-width:120px;margin-top:8px;display:none;border-radius:6px;" />
+
+        <div class="buttons">
+          <button id="saveBtn" type="submit">Guardar producto</button>
+          <button id="cancelBtn" type="button">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+  <hr>
+
+    <section class="table-section">
+      <h2>Lista de productos</h2>
+      <p>La lista de productos se encuentra en una pantalla separada.</p>
+      <p><button id="gotoListBtn" class="btn" type="button" onclick="window.location.href='Lista.html'">Ver lista de productos</button></p>
+    </section>
+  </main>
+
+  <script src="../JS/ui.js"></script>
+  <script src="../JS/Crear.js"></script>
+</body>
+</html>
