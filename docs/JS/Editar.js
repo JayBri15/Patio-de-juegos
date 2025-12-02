@@ -30,6 +30,8 @@ function loadProductToForm(id) {
     setTimeout(() => { window.location.href = 'Crear.html'; }, 1500);
     return null;
   }
+  // DEBUG: registrar producto cargado
+  try { console.debug('[Editar.js] loadProductToForm - loaded product', p); } catch (e) {}
   document.getElementById('editId').value = p.id;
   document.getElementById('editName').value = p.name || '';
   document.getElementById('editDesc').value = p.desc || '';
@@ -54,6 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadProductToForm(id);
 
   const form = document.getElementById('editForm');
+  try { console.debug('[Editar.js] form element present?', !!form); } catch (e) {}
+  try { console.debug('[Editar.js] ready to attach submit listener'); } catch (e) {}
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const id = document.getElementById('editId').value;
@@ -61,34 +65,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const desc = document.getElementById('editDesc').value.trim();
     const price = parseFloat(document.getElementById('editPrice').value);
     const stock = parseInt(document.getElementById('editStock').value, 10);
+    // DEBUG: entrada al handler de submit
+    try { console.debug('[Editar.js] submit handler start', { id, name, desc, price, stock }); } catch (e) {}
     if (!name || isNaN(price) || isNaN(stock)) { showMessage('Completa todos los campos correctamente.', 'error'); return; }
-    // handle optional new image
+
+    // read products once, find index and update in-place to avoid inconsistent reads
     const editImageInput = document.getElementById('editImage');
-    const items = getProducts().map(u => u.id === id ? { ...u, name, desc, price, stock } : u);
-    const target = items.find(x => x.id === id);
-    const existing = getProducts().find(x => x.id === id) || {};
+    const items = getProducts();
+    const idx = items.findIndex(u => u.id === id);
+    if (idx === -1) { showMessage('Producto no encontrado.', 'error'); return; }
+
+    const existing = items[idx] || {};
+    const updated = { ...existing, name, desc, price, stock };
+
+    // If a new image was selected, read it asynchronously and save when ready
     if (editImageInput && editImageInput.files && editImageInput.files[0]) {
       const f = editImageInput.files[0];
+      try { console.debug('[Editar.js] new image selected', { name: f.name, type: f.type, size: f.size }); } catch (e) {}
       if (!f.type || !f.type.startsWith('image/')) { showMessage('El archivo seleccionado no es una imagen válida.', 'error'); editImageInput.value = ''; return; }
       if (f.size > IMAGE_MAX_BYTES) { showMessage('La imagen es demasiado grande. Máx 200 KB.', 'error'); editImageInput.value = ''; return; }
-      // read file sync via FileReader promise
       const fr = new FileReader();
       fr.onload = () => {
-        target.image = fr.result;
+        try { console.debug('[Editar.js] FileReader.onload - result length', fr.result && fr.result.length); } catch (e) {}
+        updated.image = fr.result;
+        try { console.debug('[Editar.js] about to write updated item', { idx, updated }); } catch (e) {}
+        items[idx] = updated;
         saveProducts(items);
-        // after saving edits, go to product list
+        try { console.debug('[Editar.js] saved products, new length', items.length); } catch (e) {}
         window.location.href = 'Lista.html';
       };
       fr.readAsDataURL(f);
       return;
-    } else {
-      // keep existing image
-      target.image = existing.image || null;
     }
+
+    // no new image: preserve existing image value
+    updated.image = existing.image || null;
+    try { console.debug('[Editar.js] about to write updated item (no new image)', { idx, updated }); } catch (e) {}
+    items[idx] = updated;
     saveProducts(items);
-    // after saving edits, go to product list
+    try { console.debug('[Editar.js] saved products (no new image), new length', items.length); } catch (e) {}
     window.location.href = 'Lista.html';
   });
+  try { console.debug('[Editar.js] submit listener attached'); } catch (e) {}
+  // additionally log clicks on the submit button to detect whether clicks reach the button
+  try {
+    const submitBtn = form.querySelector("button[type='submit']");
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => { try { console.debug('[Editar.js] submit button clicked'); } catch(e){} });
+    } else {
+      try { console.debug('[Editar.js] submit button not found'); } catch(e){}
+    }
+  } catch (e) { console.error(e); }
+
+  // capture global errors to ensure no silent exceptions stop handlers
+  window.addEventListener('error', function(ev) { try { console.error('[Editar.js] window.onerror', ev && ev.error ? ev.error.stack || ev.error : ev); } catch(e){} });
 
   // preview when selecting new image
   const editImageInputEl = document.getElementById('editImage');

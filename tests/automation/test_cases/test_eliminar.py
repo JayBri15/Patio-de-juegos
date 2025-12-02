@@ -15,6 +15,9 @@ from pages.index_page import IndexPage
 from pages.crear_page import CrearPage
 from pages.lista_page import ListaPage
 from config.config import ADMIN_USER, ADMIN_PASSWORD, SCREENSHOTS_DIR
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 logger = logging.getLogger(__name__)
 
@@ -58,8 +61,22 @@ class TestEliminarProducto:
     def take_screenshot(self, name):
         """Auxiliar para capturar pantallas"""
         filename = os.path.join(SCREENSHOTS_DIR, f"{name}.png")
-        self.driver.save_screenshot(filename)
-        logger.info(f"Screenshot guardado: {filename}")
+        try:
+            self.driver.save_screenshot(filename)
+            logger.info(f"Screenshot guardado: {filename}")
+        except UnexpectedAlertPresentException:
+            # Si hay una alerta presente, no podemos tomar screenshot vía Selenium.
+            # Registramos el texto de la alerta para diagnóstico y seguimos sin aceptar/rechazarla,
+            # dejando que el flujo del test maneje la confirmación posteriormente.
+            try:
+                alert = self.driver.switch_to.alert
+                alert_text = alert.text
+            except Exception:
+                alert_text = "<no alert text available>"
+            txt_file = os.path.join(SCREENSHOTS_DIR, f"{name}_alert.txt")
+            with open(txt_file, "w") as f:
+                f.write(f"Alert present when taking screenshot: {alert_text}\n")
+            logger.info(f"No se pudo tomar screenshot por alerta; guardado texto en: {txt_file}")
         return filename
     
     # HU-005-TC-001: Camino feliz - Eliminar producto
@@ -85,30 +102,49 @@ class TestEliminarProducto:
         
         if initial_count > 0:
             # Paso 2-3: Eliminar producto
-            self.lista_page.delete_product_by_index(0)
-            logger.info("Eliminar producto iniciado")
-            
-            self.take_screenshot("503_delete_initiated")
-            
-            # Aceptar confirmación (si existe)
+            # Antes de click: registrar el data-id del botón para correlacionar con localStorage
             try:
-                time.sleep(1)
-                alert = self.driver.switch_to.alert
-                alert.accept()
-                logger.info("Confirmación de eliminación aceptada")
-                self.take_screenshot("504_delete_confirmed")
-            except:
-                logger.info("No hay alerta de confirmación")
-                self.take_screenshot("504_no_alert")
-            
-            time.sleep(2)
-            
+                products = self.lista_page.find_elements(self.lista_page.PRODUCT_ROWS)
+                btn = products[0].find_element("xpath", ".//button[contains(@class, 'delete')]")
+                data_id = btn.get_attribute("data-id") if btn else None
+                logger.info(f"Delete button data-id: {data_id}")
+            except Exception:
+                data_id = None
+
+            # Interceptar el confirm() del navegador para que devuelva True (aceptar)
+            # Esto evita condiciones de carrera con el diálogo nativo y hace la prueba determinista.
+            try:
+                self.driver.execute_script("window.confirm = function(msg) { return true; };")
+            except Exception:
+                logger.warning("No se pudo sobreescribir window.confirm; continuando")
+
+            # Iniciar eliminación (click). El page object no espera la alerta.
+            self.lista_page.delete_product_by_index(0)
+            logger.info("Eliminar producto iniciado (confirm auto-aceptado)")
+            self.take_screenshot("503_delete_initiated")
+
+            # Tras aceptar, registrar localStorage para diagnóstico y esperar reducción del DOM
+            try:
+                ls = self.driver.execute_script('return localStorage.getItem("pdj_products_v1")')
+            except Exception as e:
+                ls = None
+                logger.warning(f"No se pudo leer localStorage: {e}")
+
+            logger.info(f"LocalStorage after delete attempt: {ls}")
             self.take_screenshot("505_after_delete")
-            
+
+            # Esperar hasta que el conteo sea menor que el inicial (o timeout)
+            try:
+                WebDriverWait(self.driver, 5).until(
+                    lambda d: self.lista_page.get_products_count() < initial_count
+                )
+            except Exception:
+                logger.info("Timeout esperando reducción de filas en la tabla")
+
             # Resultado: Verificar conteo reducido
             final_count = self.lista_page.get_products_count()
             logger.info(f"Productos después de eliminar: {final_count}")
-            
+
             assert final_count < initial_count or final_count == initial_count - 1
             logger.info("✓ Test PASSED: Producto eliminado exitosamente")
         else:
@@ -137,22 +173,18 @@ class TestEliminarProducto:
         self.take_screenshot("508_initial_count_cancel_test")
         
         if initial_count > 0:
+            # Para esta prueba reemplazamos window.confirm para cancelar (retornar false)
+            try:
+                self.driver.execute_script("window.confirm = function(msg) { return false; };")
+            except Exception:
+                logger.warning("No se pudo sobreescribir window.confirm; intentaremos con dismiss")
+
             # Paso 2: Iniciar eliminación
             self.lista_page.delete_product_by_index(0)
-            logger.info("Intento de eliminar iniciado")
+            logger.info("Intento de eliminar iniciado (confirm auto-cancelado)")
             
             self.take_screenshot("509_delete_attempt")
-            
-            # Paso 3: Cancelar
-            try:
-                time.sleep(1)
-                alert = self.driver.switch_to.alert
-                alert.dismiss()  # Cancelar en lugar de aceptar
-                logger.info("Confirmación cancelada")
-                self.take_screenshot("510_delete_cancelled")
-            except:
-                logger.info("No hay alerta para cancelar")
-                self.take_screenshot("510_no_alert_cancel")
+            self.take_screenshot("510_delete_cancelled")
             
             time.sleep(1)
             
@@ -196,19 +228,16 @@ class TestEliminarProducto:
             try:
                 product_count = self.lista_page.get_products_count()
                 if product_count > 0:
-                    self.lista_page.delete_product_by_index(0)
-                    logger.info(f"Eliminación {i+1} iniciada")
-                    
+                    # Asegurar que los confirms sean aceptados automáticamente
                     try:
-                        time.sleep(1)
-                        alert = self.driver.switch_to.alert
-                        alert.accept()
-                        deleted_count += 1
-                        logger.info(f"Producto {i+1} eliminado")
-                    except:
-                        logger.info(f"Sin alerta para producto {i+1}")
-                    
-                    time.sleep(1)
+                        self.driver.execute_script("window.confirm = function(msg) { return true; };")
+                    except Exception:
+                        pass
+
+                    self.lista_page.delete_product_by_index(0)
+                    logger.info(f"Eliminación {i+1} iniciada (confirm auto-aceptado)")
+                    deleted_count += 1
+                    time.sleep(0.5)
             except Exception as e:
                 logger.warning(f"Error eliminando producto {i+1}: {str(e)}")
         

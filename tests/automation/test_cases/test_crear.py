@@ -118,7 +118,7 @@ class TestCrearProducto:
         
         # Pasos 1-2: Solo llenar algunos campos (sin nombre)
         self.crear_page.send_keys((By.ID, "productPrice"), "999")
-        self.crear_page.send_keys((By.ID, "productDescription"), "Producto sin nombre")
+        self.crear_page.send_keys((By.ID, "productDesc"), "Producto sin nombre")
         logger.info("Intento de crear producto sin nombre")
         
         self.take_screenshot("206_missing_name_field")

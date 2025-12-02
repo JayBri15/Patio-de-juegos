@@ -1,0 +1,12 @@
+SEVERE http://localhost:8000/favicon.ico - Failed to load resource: the server responded with a status of 404 (File not found)
+DEBUG http://localhost:8000/HTML/Index.html - [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o
+DEBUG http://localhost:8000/HTML/Index.html - [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o
+DEBUG http://localhost:8000/HTML/Index.html - [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o
+DEBUG http://localhost:8000/JS/Editar.js 33:16 "[Editar.js] loadProductToForm - loaded product" Object
+DEBUG http://localhost:8000/JS/Editar.js 58:16 "[Editar.js] form element present?" true
+DEBUG http://localhost:8000/JS/Editar.js 59:16 "[Editar.js] ready to attach submit listener"
+DEBUG http://localhost:8000/JS/Editar.js 108:16 "[Editar.js] submit listener attached"
+DEBUG http://localhost:8000/JS/Editar.js 113:64 "[Editar.js] submit button clicked"
+DEBUG http://localhost:8000/JS/Editar.js 68:18 "[Editar.js] submit handler start" Object
+DEBUG http://localhost:8000/JS/Editar.js 102:18 "[Editar.js] about to write updated item (no new image)" Object
+DEBUG http://localhost:8000/JS/Editar.js 105:18 "[Editar.js] saved products (no new image), new length" 4

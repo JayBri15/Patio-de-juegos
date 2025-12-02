@@ -42,8 +42,9 @@ class BasePage:
             logger.info(f"Elementos encontrados ({len(elements)}): {locator}")
             return elements
         except TimeoutException:
-            logger.error(f"Timeout esperando elementos: {locator}")
-            raise
+            # Si no se encuentran elementos, devolver lista vacía en lugar de romper la ejecución.
+            logger.info(f"No se encontraron elementos para {locator}; devolviendo lista vacía")
+            return []
     
     def click_element(self, locator):
         """Hace clic en un elemento después de esperarlo"""

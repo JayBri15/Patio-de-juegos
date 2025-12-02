@@ -32,4 +32,4 @@ os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
 
 # Información del navegador
 BROWSER = "chrome"  # Options: chrome, firefox, edge
-HEADLESS = False  # Para debug, cambiar a False
+HEADLESS = True  # Para debug, cambiar a False

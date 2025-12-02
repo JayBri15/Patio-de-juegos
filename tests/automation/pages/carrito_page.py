@@ -12,18 +12,19 @@ class CarritoPage(BasePage):
     def __init__(self, driver):
         super().__init__(driver, CARRITO_URL)
     
-    # Localizadores
+    # Localizadores (ajustados a `docs/HTML/Carrito.html`)
     CART_TABLE = (By.ID, "cartTable")
     CART_ITEMS = (By.XPATH, "//table[@id='cartTable']/tbody/tr")
-    EMPTY_CART_MESSAGE = (By.CLASS_NAME, "empty-cart")
-    
-    REMOVE_BUTTON = (By.XPATH, "//button[contains(@onclick, 'removeFromCart')]")
-    UPDATE_QUANTITY_INPUT = (By.XPATH, "//input[@name='quantity']")
-    UPDATE_BUTTON = (By.XPATH, "//button[contains(@onclick, 'updateQuantity')]")
-    
+    EMPTY_CART_MESSAGE = (By.ID, "emptyMessage")
+
+    # Buttons and inputs are rendered with classes/data-id (see docs/JS/Carrito.js)
+    REMOVE_BUTTON = (By.XPATH, "//button[contains(@class, 'remove')]")
+    UPDATE_QUANTITY_INPUT = (By.XPATH, "//input[contains(@class, 'qty')]")
+    UPDATE_BUTTON = (By.XPATH, "//button[contains(@class, 'update')]")
+
     CHECKOUT_BUTTON = (By.ID, "checkoutBtn")
-    CONTINUE_SHOPPING = (By.ID, "continueShoppingBtn")
-    
+    CLEAR_BUTTON = (By.ID, "clearBtn")
+
     LOGOUT_BUTTON = (By.ID, "logoutBtn")
     
     def get_cart_items_count(self):
@@ -39,7 +40,8 @@ class CarritoPage(BasePage):
         items = self.find_elements(self.CART_ITEMS)
         names = []
         for item in items:
-            name = item.find_element(By.XPATH, ".//td[1]").text
+            # table columns: img, product, price, quantity, subtotal, actions
+            name = item.find_element(By.XPATH, ".//td[2]").text
             names.append(name)
         return names
     
@@ -47,15 +49,22 @@ class CarritoPage(BasePage):
         """Elimina un item del carrito por su índice"""
         items = self.find_elements(self.CART_ITEMS)
         if index < len(items):
-            remove_btn = items[index].find_element(By.XPATH, ".//button[contains(@onclick, 'removeFromCart')]")
+            remove_btn = items[index].find_element(By.XPATH, ".//button[contains(@class, 'remove')]")
             self.driver.execute_script("arguments[0].click();", remove_btn)
     
     def update_quantity(self, index, quantity):
         """Actualiza la cantidad de un item"""
         items = self.find_elements(self.CART_ITEMS)
         if index < len(items):
-            quantity_input = items[index].find_element(By.XPATH, ".//input[@name='quantity']")
-            self.send_keys((By.XPATH, f"({self.UPDATE_QUANTITY_INPUT[1]})[{index+1}]"), str(quantity))
+            quantity_input = items[index].find_element(By.XPATH, ".//input[contains(@class, 'qty')]")
+            try:
+                quantity_input.clear()
+                quantity_input.send_keys(str(quantity))
+                # dispatch input event so frontend updates sessionStorage/UI
+                self.driver.execute_script("arguments[0].dispatchEvent(new Event('input'));", quantity_input)
+            except Exception:
+                # fallback: set value directly via JS
+                self.driver.execute_script("arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('input'));", quantity_input, str(quantity))
     
     def checkout(self):
         """Realiza el checkout"""
@@ -63,7 +72,11 @@ class CarritoPage(BasePage):
     
     def continue_shopping(self):
         """Continúa comprando"""
-        self.click_element(self.CONTINUE_SHOPPING)
+        # Volver a la lista
+        try:
+            self.click_element((By.ID, "gotoListBtn"))
+        except Exception:
+            pass
     
     def is_empty_cart_message_visible(self):
         """Verifica si el carrito está vacío"""

@@ -130,8 +130,8 @@ class TestLogin:
         self.index_page.toggle_to_login()
         self.take_screenshot("07_login_empty_fields_form")
         
-        # Paso 1: No llenar nada, solo hacer clic
-        self.index_page.click_element((By.ID, "loginBtn"))
+        # Paso 1: No llenar nada, solo hacer clic (usar locator del POM)
+        self.index_page.click_element(self.index_page.LOGIN_BUTTON)
         logger.info("Intento de login con campos vacíos")
         
         # Paso 2: Screenshot

@@ -12,25 +12,26 @@ class IndexPage(BasePage):
     def __init__(self, driver):
         super().__init__(driver, INDEX_URL)
     
-    # Localizadores
+    # Localizadores (ajustados a la versión actual de `docs/HTML/Index.html`)
     LOGIN_FORM = (By.ID, "loginForm")
     REGISTER_FORM = (By.ID, "registerForm")
-    LOGIN_TOGGLE = (By.ID, "toggleLogin")
-    REGISTER_TOGGLE = (By.ID, "toggleRegister")
-    
+    LOGIN_TOGGLE = (By.ID, "tabLogin")
+    REGISTER_TOGGLE = (By.ID, "tabRegister")
+
     # Elementos de Login
-    LOGIN_USERNAME = (By.ID, "loginUsername")
+    LOGIN_USERNAME = (By.ID, "loginName")
     LOGIN_PASSWORD = (By.ID, "loginPassword")
-    LOGIN_BUTTON = (By.ID, "loginBtn")
+    LOGIN_BUTTON = (By.CSS_SELECTOR, "form#loginForm button[type='submit']")
     LOGIN_ERROR = (By.CLASS_NAME, "error-message")
-    
+
     # Elementos de Registro
-    REGISTER_USERNAME = (By.ID, "registerUsername")
-    REGISTER_PASSWORD = (By.ID, "registerPassword")
-    REGISTER_CONFIRM_PASSWORD = (By.ID, "registerConfirmPassword")
-    REGISTER_BUTTON = (By.ID, "registerBtn")
+    REGISTER_USERNAME = (By.ID, "regName")
+    REGISTER_EMAIL = (By.ID, "regEmail")
+    REGISTER_PASSWORD = (By.ID, "regPassword")
+    REGISTER_CONFIRM_PASSWORD = (By.ID, "regPassword2")
+    REGISTER_BUTTON = (By.CSS_SELECTOR, "form#registerForm button[type='submit']")
     REGISTER_ERROR = (By.CLASS_NAME, "error-message")
-    
+
     # Mensajes de éxito
     SUCCESS_MESSAGE = (By.CLASS_NAME, "success-message")
     
@@ -51,6 +52,8 @@ class IndexPage(BasePage):
     def register(self, username, password, confirm_password):
         """Realiza registro de nuevo usuario"""
         self.send_keys(self.REGISTER_USERNAME, username)
+        # El formulario de registro actual usa email + contraseña
+        # si se requiere ajustar, se asigna también REGISTER_EMAIL
         self.send_keys(self.REGISTER_PASSWORD, password)
         self.send_keys(self.REGISTER_CONFIRM_PASSWORD, confirm_password)
         self.click_element(self.REGISTER_BUTTON)

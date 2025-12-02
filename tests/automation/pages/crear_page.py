@@ -15,10 +15,10 @@ class CrearPage(BasePage):
     # Localizadores
     PRODUCT_NAME = (By.ID, "productName")
     PRODUCT_PRICE = (By.ID, "productPrice")
-    PRODUCT_DESCRIPTION = (By.ID, "productDescription")
-    PRODUCT_CATEGORY = (By.ID, "productCategory")
+    PRODUCT_DESCRIPTION = (By.ID, "productDesc")
+    PRODUCT_STOCK = (By.ID, "productStock")
     PRODUCT_IMAGE = (By.ID, "productImage")
-    SAVE_BUTTON = (By.ID, "saveProductBtn")
+    SAVE_BUTTON = (By.ID, "saveBtn")
     CANCEL_BUTTON = (By.ID, "cancelBtn")
     
     SUCCESS_MESSAGE = (By.CLASS_NAME, "success-message")
@@ -31,15 +31,21 @@ class CrearPage(BasePage):
         self.send_keys(self.PRODUCT_NAME, name)
         self.send_keys(self.PRODUCT_PRICE, price)
         self.send_keys(self.PRODUCT_DESCRIPTION, description)
-        
-        # Seleccionar categoría
-        self.click_element(self.PRODUCT_CATEGORY)
-        category_option = (By.XPATH, f"//select[@id='productCategory']/option[text()='{category}']")
-        self.click_element(category_option)
+        # Si existe stock, llenarlo con un valor por defecto
+        try:
+            self.send_keys(self.PRODUCT_STOCK, "10")
+        except Exception:
+            pass
     
     def save_product(self):
         """Guarda el producto"""
         self.click_element(self.SAVE_BUTTON)
+        # Si aparece una alerta (por ejemplo: "Producto guardado."), aceptarla
+        try:
+            self.switch_to_alert_and_accept()
+        except Exception:
+            # No forzamos la falla si no hay alerta; la excepción queda registrada en BasePage
+            pass
     
     def cancel(self):
         """Cancela la creación de producto"""

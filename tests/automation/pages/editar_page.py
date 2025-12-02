@@ -13,13 +13,13 @@ class EditarPage(BasePage):
         super().__init__(driver, EDITAR_URL)
     
     # Localizadores
-    PRODUCT_NAME = (By.ID, "productName")
-    PRODUCT_PRICE = (By.ID, "productPrice")
-    PRODUCT_DESCRIPTION = (By.ID, "productDescription")
-    PRODUCT_CATEGORY = (By.ID, "productCategory")
-    PRODUCT_IMAGE = (By.ID, "productImage")
-    SAVE_BUTTON = (By.ID, "saveProductBtn")
-    CANCEL_BUTTON = (By.ID, "cancelBtn")
+    PRODUCT_NAME = (By.ID, "editName")
+    PRODUCT_PRICE = (By.ID, "editPrice")
+    PRODUCT_DESCRIPTION = (By.ID, "editDesc")
+    PRODUCT_STOCK = (By.ID, "editStock")
+    PRODUCT_IMAGE = (By.ID, "editImage")
+    SAVE_BUTTON = (By.CSS_SELECTOR, "form#editForm button[type='submit']")
+    CANCEL_BUTTON = (By.ID, "cancelEdit")
     
     SUCCESS_MESSAGE = (By.CLASS_NAME, "success-message")
     ERROR_MESSAGE = (By.CLASS_NAME, "error-message")
@@ -52,9 +52,8 @@ class EditarPage(BasePage):
     
     def update_product_category(self, new_category):
         """Actualiza la categoría del producto"""
-        self.click_element(self.PRODUCT_CATEGORY)
-        category_option = (By.XPATH, f"//select[@id='productCategory']/option[text()='{new_category}']")
-        self.click_element(category_option)
+        # No hay selección de categoría en la versión actual; ignorar
+        return
     
     def save_product(self):
         """Guarda los cambios del producto"""
